@@ -32,6 +32,7 @@
 #include <ql/pricingengines/barrier/mcbarrierengine.hpp>
 #include <ql/processes/blackscholesprocess.hpp>
 #include <utility>
+#include "choosepathgenerator.hpp"
 
 namespace QuantLib {
 
@@ -234,31 +235,14 @@ namespace QuantLib {
     inline
     ext::shared_ptr<typename MCBarrierEngine_2<RNG,S>::path_generator_type>
     MCBarrierEngine_2<RNG,S>::pathGenerator() const {
-        TimeGrid grid = timeGrid();
-        typename RNG::rsg_type gen =
-            RNG::make_sequence_generator(grid.size()-1,seed_);
-        // Constant Case
-        if (constantParameters) {
-            ext::shared_ptr<GeneralizedBlackScholesProcess> BS_process =
-                ext::dynamic_pointer_cast<GeneralizedBlackScholesProcess>(process_);
-            // Retrieve parameters from process
-            Time extrac_time = grid.back();
-            double strike = ext::dynamic_pointer_cast<PlainVanillaPayoff>(arguments_.payoff)->strike();
-            double riskFreeRate_ = BS_process->riskFreeRate()->zeroRate(extrac_time, Continuous);
-            double dividend_ = BS_process->dividendYield()->zeroRate(extrac_time, Continuous);
-            double volatility_ = BS_process->blackVolatility()->blackVol(extrac_time, strike);
-            double underlyingValue_ = BS_process->x0();
-            // Constant Black Scholes process with these parameters
-            ext::shared_ptr<ConstantBlackScholesProcess> Constant_BS_process(new ConstantBlackScholesProcess(underlyingValue_, riskFreeRate_, volatility_, dividend_));
-            // Return a new path generator with ConstantBlackScholesProcess
-            return ext::shared_ptr<path_generator_type>(
-                new path_generator_type(Constant_BS_process, grid,
-                    gen, brownianBridge_));
-        } else { // Not constant case
-            return ext::shared_ptr<path_generator_type>(
-                        new path_generator_type(process_,
-                                                grid, gen, brownianBridge_));
-        }
+        double strike = ext::dynamic_pointer_cast<PlainVanillaPayoff>(arguments_.payoff)->strike();
+
+        return getPathGenerator(this->timeGrid(),
+                                RNG::make_sequence_generator(grid.size()-1,seed_),
+                                process_,
+                                brownianBridge_,
+                                strike,
+                                constantParameters);
     }
 
     template <class RNG, class S>

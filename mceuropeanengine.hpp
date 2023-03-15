@@ -31,6 +31,7 @@
 #include <ql/termstructures/volatility/equityfx/blackconstantvol.hpp>
 #include <ql/termstructures/volatility/equityfx/blackvariancecurve.hpp>
 #include "constantblackscholesprocess.hpp"
+#include "choosepathgenerator.hpp"
 
 namespace QuantLib {
 
@@ -168,33 +169,15 @@ namespace QuantLib {
     inline
     ext::shared_ptr<typename MCEuropeanEngine_2<RNG,S>::path_generator_type>
     MCEuropeanEngine_2<RNG,S>::pathGenerator() const {
+        double strike = ext::dynamic_pointer_cast<PlainVanillaPayoff>(arguments_.payoff)->strike();
+        Size dimensions = MCDiscreteAveragingAsianEngineBase<SingleVariate,RNG,S>::process_->factors();
 
-        Size dimensions = MCVanillaEngine<SingleVariate, RNG, S>::process_->factors();
-        TimeGrid grid = this->timeGrid();
-        typename RNG::rsg_type generator =
-            RNG::make_sequence_generator(dimensions * (grid.size() - 1), MCVanillaEngine<SingleVariate, RNG, S>::seed_);
-        // Constant Case
-        if (constantParameters) {
-            ext::shared_ptr<GeneralizedBlackScholesProcess> BS_process =
-                ext::dynamic_pointer_cast<GeneralizedBlackScholesProcess>(this->process_);
-            // Retrieve parameters from process
-            Time extrac_time = grid.back();
-            double strike = boost::dynamic_pointer_cast<PlainVanillaPayoff>(this->arguments_.payoff)->strike();
-            double riskFreeRate_ = BS_process->riskFreeRate()->zeroRate(extrac_time, Continuous);
-            double dividend_ = BS_process->dividendYield()->zeroRate(extrac_time, Continuous);
-            double volatility_ = BS_process->blackVolatility()->blackVol(extrac_time, strike);
-            double underlyingValue_ = BS_process->x0();
-            // Constant Black Scholes process with these parameters
-            ext::shared_ptr<ConstantBlackScholesProcess> Constant_BS_process(new ConstantBlackScholesProcess(underlyingValue_, riskFreeRate_, volatility_, dividend_));
-            // Return a new path generator with ConstantBlackScholesProcess
-            return ext::shared_ptr<path_generator_type>(
-                new path_generator_type(Constant_BS_process, grid,
-                    generator, MCVanillaEngine<SingleVariate, RNG, S>::brownianBridge_));
-        } else { // Not constant case
-            return ext::shared_ptr<path_generator_type>(
-                new path_generator_type(MCVanillaEngine<SingleVariate, RNG, S>::process_, grid,
-                    generator, MCVanillaEngine<SingleVariate, RNG, S>::brownianBridge_));
-        }
+        return getPathGenerator(this->timeGrid(),
+                                RNG::make_sequence_generator(dimensions * (grid.size() - 1), MCVanillaEngine<SingleVariate, RNG, S>::seed_);,
+                                this->process_, // or MCVanillaEngine<SingleVariate, RNG, S>::process_ ? 
+                                MCVanillaEngine<SingleVariate, RNG, S>::brownianBridge_,
+                                strike,
+                                constantParameters);
     }
 
 
