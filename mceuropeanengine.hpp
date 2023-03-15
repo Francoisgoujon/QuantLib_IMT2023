@@ -138,7 +138,7 @@ namespace QuantLib {
                                            requiredTolerance,
                                            maxSamples,
                                            seed) {
-        constantParameters = constantParameters;
+        this->constantParameters = constantParameters;
     }
 
     template <class RNG, class S>
