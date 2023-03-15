@@ -179,7 +179,7 @@ namespace QuantLib {
                 ext::dynamic_pointer_cast<GeneralizedBlackScholesProcess>(this->process_);
             // Retrieve parameters from process
             Time extrac_time = grid.back();
-            double strike = ext::dynamic_pointer_cast<StrikedTypePayoff>(MCVanillaEngine<SingleVariate, RNG, S>::arguments_.payoff)->strike();
+            double strike = boost::dynamic_pointer_cast<PlainVanillaPayoff>(this->arguments_.payoff)->strike();
             double riskFreeRate_ = BS_process->riskFreeRate()->zeroRate(extrac_time, Continuous);
             double dividend_ = BS_process->dividendYield()->zeroRate(extrac_time, Continuous);
             double volatility_ = BS_process->blackVolatility()->blackVol(extrac_time, strike);
