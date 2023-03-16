@@ -129,10 +129,10 @@ namespace QuantLib {
         TimeGrid grid = this->timeGrid();
         pathGeneratorGenerator<RNG,S> pgg;
 
-        return pgg->getPathGenerator(grid,
-                                RNG::make_sequence_generator(dimensions * (grid.size() - 1), MCVanillaEngine<SingleVariate, RNG, S>::seed_),
-                                this->process_, // or MCVanillaEngine<SingleVariate, RNG, S>::process_ ? 
-                                MCVanillaEngine<SingleVariate, RNG, S>::brownianBridge_,
+        return pgg.getPathGenerator(grid,
+                                RNG::make_sequence_generator(dimensions * (grid.size() - 1), this->seed_),
+                                this->process_, 
+                                this->brownianBridge_,
                                 strike,
                                 constantParameters);
     }

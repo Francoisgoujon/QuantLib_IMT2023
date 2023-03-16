@@ -239,7 +239,7 @@ namespace QuantLib {
         TimeGrid grid = this->timeGrid();
         pathGeneratorGenerator<RNG,S> pgg;
 
-        return pgg->getPathGenerator(grid,
+        return pgg.getPathGenerator(grid,
                                 RNG::make_sequence_generator(grid.size()-1,seed_),
                                 process_,
                                 brownianBridge_,

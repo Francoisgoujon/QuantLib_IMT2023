@@ -169,14 +169,15 @@ namespace QuantLib {
     inline
     ext::shared_ptr<typename MCEuropeanEngine_2<RNG,S>::path_generator_type>
     MCEuropeanEngine_2<RNG,S>::pathGenerator() const {
-        double strike = boost::dynamic_pointer_cast<PlainVanillaPayoff>(this->arguments_.payoff)->strike();        Size dimensions = MCVanillaEngine<SingleVariate, RNG, S>::process_->factors();
+        double strike = boost::dynamic_pointer_cast<PlainVanillaPayoff>(this->arguments_.payoff)->strike();        
+        Size dimensions = MCVanillaEngine<SingleVariate, RNG, S>::process_->factors();
         TimeGrid grid = this->timeGrid();
         pathGeneratorGenerator<RNG,S> pgg;
 
-        return pgg->getPathGenerator(grid,
-                                RNG::make_sequence_generator(dimensions * (grid.size() - 1), MCVanillaEngine<SingleVariate, RNG, S>::seed_),
-                                this->process_, // or MCVanillaEngine<SingleVariate, RNG, S>::process_ ? 
-                                MCVanillaEngine<SingleVariate, RNG, S>::brownianBridge_,
+        return pgg.getPathGenerator(grid,
+                                RNG::make_sequence_generator(dimensions * (grid.size() - 1), this->seed_),
+                                this->process_, 
+                                this->brownianBridge_,
                                 strike,
                                 constantParameters);
     }

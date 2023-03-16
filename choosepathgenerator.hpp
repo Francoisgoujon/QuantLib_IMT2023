@@ -15,12 +15,12 @@ namespace QuantLib {
         public:
 
         typedef
-        typename MCVanillaEngine<SingleVariate,RNG,S>::path_generator_type
+        typename McSimulation<SingleVariate,RNG,S>::path_generator_type
             path_generator_type;
 
         auto getPathGenerator(TimeGrid grid,
                             typename RNG::rsg_type generator,
-                            boost::shared_ptr<GeneralizedBlackScholesProcess> process_,
+                            boost::shared_ptr<StochasticProcess> process_,
                             bool brownianBridge_,
                             double strike,
                             bool constantParameters) {
