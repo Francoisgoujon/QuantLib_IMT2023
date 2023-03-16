@@ -236,8 +236,10 @@ namespace QuantLib {
     ext::shared_ptr<typename MCBarrierEngine_2<RNG,S>::path_generator_type>
     MCBarrierEngine_2<RNG,S>::pathGenerator() const {
         double strike = ext::dynamic_pointer_cast<PlainVanillaPayoff>(arguments_.payoff)->strike();
+        TimeGrid grid = this->timeGrid();
+        pathGeneratorGenerator<RNG,S> pgg;
 
-        return getPathGenerator(this->timeGrid(),
+        return pgg->getPathGenerator(grid,
                                 RNG::make_sequence_generator(grid.size()-1,seed_),
                                 process_,
                                 brownianBridge_,

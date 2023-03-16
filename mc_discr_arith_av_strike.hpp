@@ -124,11 +124,13 @@ namespace QuantLib {
     inline
     ext::shared_ptr<typename MCDiscreteArithmeticASEngine_2<RNG,S>::path_generator_type>
     MCDiscreteArithmeticASEngine_2<RNG,S>::pathGenerator() const {
-        double strike = ext::dynamic_pointer_cast<PlainVanillaPayoff>(arguments_.payoff)->strike();
+        double strike = boost::dynamic_pointer_cast<PlainVanillaPayoff>(this->arguments_.payoff)->strike();
         Size dimensions = MCDiscreteAveragingAsianEngineBase<SingleVariate,RNG,S>::process_->factors();
+        TimeGrid grid = this->timeGrid();
+        pathGeneratorGenerator<RNG,S> pgg;
 
-        return getPathGenerator(this->timeGrid(),
-                                RNG::make_sequence_generator(dimensions * (grid.size() - 1), MCVanillaEngine<SingleVariate, RNG, S>::seed_);,
+        return pgg->getPathGenerator(grid,
+                                RNG::make_sequence_generator(dimensions * (grid.size() - 1), MCVanillaEngine<SingleVariate, RNG, S>::seed_),
                                 this->process_, // or MCVanillaEngine<SingleVariate, RNG, S>::process_ ? 
                                 MCVanillaEngine<SingleVariate, RNG, S>::brownianBridge_,
                                 strike,
